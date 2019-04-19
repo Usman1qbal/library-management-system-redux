@@ -9,6 +9,7 @@ import AuthorList from "./component/authorList";
 import PublisherList from "./component/publisherList";
 import AddBooks from "./component/addBook";
 import UpdateBook from "./component/updateBook";
+import * as R from "ramda";
 
 
 
@@ -23,18 +24,18 @@ class App extends Component {
 
   showPanel = value => {
     this.setState({ status: value });
-    if(value === "Author")
+    if(R.equals(value,"Author"))
     {
       var list = this.props.totalData;
       var author = list.map(item => 
         {
-        var count = list.filter(items => { return items.Author === item.Author; }).length;
+        var count = R.filter((items => { return R.equals(items.Author,item.Author); }),list).length;
         let Author = item.Author;
         let Count = count;
         return { Author, Count };
         });
 
-      var getList = author.reduce((x, y) => (x.findIndex(e => e.Author === y.Author) < 0 ? [...x, y] : x),[] );
+      var getList = author.reduce((x, y) => (x.findIndex(e => R.equals(e.Author,y.Author)) < 0 ? [...x, y] : x),[] );
       
       this.setState({ Author: getList, status: "Author" });
     }
@@ -42,18 +43,18 @@ class App extends Component {
     else if(value === "Publisher")
     {
       list = this.props.totalData;
-      var Publisher = list.map(item => 
+      var Publisher = R.map((item => 
         {
-        var count = list.filter(items => 
+        var count = R.filter((items => 
         {
-          return items.Publisher === item.Publisher;
-        }).length;
+          return R.equals(items.Publisher,item.Publisher);
+        }),list).length;
         let Publisher = item.Publisher;
         let Count = count;
         return { Publisher, Count };
-      });
+      }),list);
       getList = Publisher.reduce(
-        (x, y) => (x.findIndex(e => e.Publisher === y.Publisher) < 0 ? [...x, y] : x),[] );
+        (x, y) => (x.findIndex(e => R.equals(e.Publisher,y.Publisher)) < 0 ? [...x, y] : x),[] );
       this.setState({ Publisher: getList, status: "Publisher" });
     }
   };
@@ -61,53 +62,53 @@ class App extends Component {
 deleteUpdateData = (value,e) =>
 {
   var updatedData;
-  if(value === "Author")
+  if(R.equals(value,"Author"))
   {
-      updatedData = this.props.totalData.filter((item)=>
+      updatedData = R.filter(((item)=>
       {
-      return item.Author !== e.target.value
-      });
+      return !R.equals(item.Author,e.target.value)
+      }),this.props.totalData);
     
       this.props.saveData(updatedData);
       alert("Author Deleted Successfully");
       this.setState({
         status: "Author",
-        Author: this.state.Author.filter((item) => { return item.Author !== e.target.value })  
+        Author: this.state.Author.filter((item) => { return !R.equals(item.Author,e.target.value) })  
       });
   }
   
-  else if( value === "Publisher")
+  else if( R.equals(value,"Publisher"))
   {
-    updatedData = this.props.totalData.filter((item)=>{
+    updatedData = R.filter(((item)=>{
       return item.Publisher !== e.target.value
-    });
+    }),this.props.totalData);
   
     this.props.saveData(updatedData);
     alert("Publisher Deleted Successfully");
     this.setState({
       status: "Publisher",
-      Publisher: this.state.Publisher.filter((item) => { return item.Publisher !== e.target.value })  
+      Publisher: this.state.Publisher.filter((item) => { return !R.equals(item.Publisher,e.target.value) })  
     });
   }
   
-  else if( value === "Books")
+  else if( R.equals(value,"Books"))
   {
-    updatedData = this.props.totalData.filter((item)=>
+    updatedData = R.filter(((item)=>
     {
-      return item.BookName !== e.target.value
-    });
+      return !R.equals(item.BookName,e.target.value)
+    }),this.props.totalData);
     
     this.props.saveData(updatedData);
     alert("Book Deleted Successfully");
     this.setState({status: "Books"});
   }
 
-  else if( value === "Update")
+  else if( R.equals(value,"Update"))
   {
-    updatedData = this.props.totalData.filter((item)=>
+    updatedData = R.filter(((item)=>
     {
-      return item.BookName === e.target.value
-    });
+      return R.equals(item.BookName,e.target.value)
+    }),this.props.totalData);
     this.setState({Book: updatedData,status: "UpdateBook"});
   }
 }
@@ -128,14 +129,14 @@ saveBookDetail = data => {
 
         <Headers />
         {
-          this.state.status === "" && (
+          R.equals(this.state.status,"") && (
           <button onClick={this.showBook} className="authorPublisherButton">
             Login
           </button>)
         }
 
         {
-          this.state.status === "Books" && (
+         R.equals( this.state.status,"Books") && (
           <BookDetail
             showPanel={this.showPanel}
             showBook={this.showBook}
@@ -145,7 +146,7 @@ saveBookDetail = data => {
         }
 
         {
-          this.state.status === "Author" && (
+         R.equals( this.state.status, "Author") && (
           <AuthorList 
             showPanel={this.showPanel} 
             data={this.state.Author} 
@@ -154,7 +155,7 @@ saveBookDetail = data => {
         }
 
         {
-          this.state.status === "Publisher" && (
+          R.equals(this.state.status,"Publisher") && (
           <PublisherList
           showPanel={this.showPanel}
           data={this.state.Publisher} 
@@ -163,7 +164,7 @@ saveBookDetail = data => {
         }
 
         {
-          this.state.status === "AddBooks" && (
+          R.equals(this.state.status,"AddBooks") && (
           <AddBooks
             showPanel={this.showPanel}
             saveBookDetail={this.saveBookDetail}
@@ -172,7 +173,7 @@ saveBookDetail = data => {
         }
 
         {
-          this.state.status === "UpdateBook" && (
+          R.equals(this.state.status,"UpdateBook") && (
           <UpdateBook showPanel={this.showPanel} 
           data={this.props.totalData}
           saveBookDetail={this.saveBookDetail}

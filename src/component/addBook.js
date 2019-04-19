@@ -1,15 +1,14 @@
 import React, { Component } from "react";
 import "./style/style.css";
+import * as R from "ramda";
 class addBook extends Component  {
 
   validateData = (BookName, Author, Publisher, Date) => {
-    if (BookName !== "" && Author !== "" && Publisher !== "" && Date !== "") {
+    if (!R.equals(BookName,"") && !R.equals(Author,"") && !R.equals(Publisher,"") && !R.equals(Date,"")) {
       if (!Date.match(/^\d{4}-\d{2}-\d{2}$/)) {
         alert("Date Format Issue");
         return false;
       } else {
-        const { Book, author, publisher, date } = this.refs;
-        Book.value = author.value = publisher.value = date.value = "";
         return true;
       }
     } else {
@@ -29,12 +28,12 @@ class addBook extends Component  {
     if (this.validateData(BookName, Author, Publisher, Date) === true) {
       const list = this.props.data.filter(item => {
         return (
-          item.BookName === BookName &&
-          item.Author === Author &&
-          item.Publisher === Publisher
+          R.equals(item.BookName,BookName) &&
+          R.equals(item.Author,Author) &&
+          R.equals(item.Publisher,Publisher)
         );
       });
-      if (list.length !== 0) {
+      if (!R.equals(list.length,0)) {
         alert("Book Detail Already Saved in Database");
       } else {
         this.props.data.push({
@@ -43,6 +42,8 @@ class addBook extends Component  {
           Publisher: Publisher,
           Date: Date
         });
+        const { Book, author, publisher, date } = this.refs;
+        Book.value = author.value = publisher.value = date.value = "";
         this.props.saveBookDetail(this.props.data);
       }
     }

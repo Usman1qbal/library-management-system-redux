@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './style/style.css';
+import * as R from "ramda";
 
 class updateBook extends Component {
   
@@ -13,7 +14,7 @@ state =
 
 validateData = (BookName, Author, Publisher, Date) => 
 {
-  if (BookName !== "" && Author !== "" && Publisher !== "" && Date !== "") 
+  if (!R.equals(BookName,"") && !R.equals(Author,"") && !R.equals(Publisher,"") && !R.equals(Date,"")) 
   {
     if (!Date.match(/^\d{4}-\d{2}-\d{2}$/)) 
     {
@@ -22,8 +23,6 @@ validateData = (BookName, Author, Publisher, Date) =>
     } 
     else 
     {
-      const { Book, author, publisher, date } = this.refs;
-      Book.value = author.value = publisher.value = date.value = "";
       return true;
     }
   } 
@@ -36,25 +35,25 @@ validateData = (BookName, Author, Publisher, Date) =>
 
 saveBook = () => 
 {
-  const { Book, author, publisher, date } = this.refs;
+  const { bookName, author, publisher, date } = this.state;
 
-  const BookName = Book.value.toUpperCase();
-  const Author = author.value.toUpperCase();
-  const Publisher = publisher.value.toUpperCase();
-  const Date = date.value;
+  const bookNamee = bookName.toUpperCase();
+  const authorr = author.toUpperCase();
+  const publisherr = publisher.toUpperCase();
+  const datee = date;
 
-  if (this.validateData(BookName, Author, Publisher, Date) === true) 
+  if (R.equals (this.validateData(bookNamee, authorr, publisherr, datee), true)) 
   {
     const list = this.props.data.filter(item => 
       {
         return (
-          item.BookName === BookName &&
-          item.Author === Author &&
-          item.Publisher === Publisher
+          R.equals(item.BookName,bookNamee) &&
+          R.equals(item.Author,authorr) &&
+          R.equals(item.Publisher,publisherr)
         );
       });
 
-    if (list.length !== 0) 
+    if (!R.equals(list.length,0)) 
     {
       alert("Book Detail Already Saved in Database");
     } 
@@ -62,12 +61,15 @@ saveBook = () =>
     {
       var updatedBookDetail = this.props.data.map((item)=>
       {
-        if(item.BookName === this.props.updateData.BookName && item.Author === this.props.updateData.Author && item.Publisher === this.props.updateData.Publisher)
+        const {BookName,Author,Publisher} = this.props.updateData;
+        
+        if(R.equals(item.BookName,BookName) && R.equals(item.Author,Author) && R.equals(item.Publisher,Publisher))
           {
-            item.BookName= BookName;
-            item.Author= Author;
-            item.Publisher= Publisher;
-            item.Date= Date;
+
+            item.BookName= bookNamee;
+            item.Author= authorr;
+            item.Publisher= publisherr;
+            item.Date= datee;
             return item;
           }
           else
@@ -75,6 +77,9 @@ saveBook = () =>
             return item;
           }
       });
+      console.log("updated",updatedBookDetail);
+      const { Book, author, publisher, date } = this.refs;
+      Book.value = author.value = publisher.value = date.value = "";
       this.props.saveBookDetail(updatedBookDetail);
     }
   }

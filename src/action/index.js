@@ -19,7 +19,7 @@ const POST_api = async data => {
 };
 
 export const saveData = value => {
-  const val = POST_api(value);
+  POST_api(value);
   return {
     type: SAVE_DATA,
     data: value
